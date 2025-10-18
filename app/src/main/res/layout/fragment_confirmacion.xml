@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Resumen de la Reserva"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="32dp"/>
+
+    <TextView
+        android:id="@+id/tv_espacio_confirmacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Espacio: A1"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiempo de estadía:"
+        android:textSize="18sp"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tv_minutos_seleccionados"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="30 minutos"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="4dp" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/slider_tiempo_maximo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:valueFrom="10"
+        android:valueTo="60"
+        android:stepSize="10"
+        android:value="30"
+        app:labelBehavior="gone"
+        android:layout_marginBottom="16dp"
+        app:trackColorActive="#0B6CF3"
+        app:thumbColor="#0B6CF3"
+        app:haloColor="#1A0B6CF3"
+        app:tickColorActive="#FFFFFF"
+        app:tickColorInactive="#888888"
+        app:trackColorInactive="#CCCCCC"/>
+
+    <TextView
+        android:id="@+id/tv_precio_confirmacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Precio: S/ 3.00"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <EditText
+        android:id="@+id/et_nombre_completo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ingresa tu nombre completo"
+        android:inputType="textPersonName"
+        android:layout_marginBottom="32dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_pagar_ahora"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/button_background_blue"
+        android:text="Pagar Ahora"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+</LinearLayout>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1069975093883",
+    "project_id": "parkview-app-561b2",
+    "storage_bucket": "parkview-app-561b2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069975093883:android:421c37fa5e7fb4cd5098de",
+        "android_client_info": {
+          "package_name": "com.example.parkview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0JUN1JSSRKHddeUYR-hnJNLvxMQy4_Io"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

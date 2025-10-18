@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_size_large_title">40sp</dimen>
+    <dimen name="text_size_title">24sp</dimen>
+    <dimen name="text_size_normal">16sp</dimen>
+
+    <dimen name="margin_large">32dp</dimen>
+    <dimen name="margin_standard">24dp</dimen>
+    <dimen name="padding_standard">20dp</dimen>
+
+    <dimen name="header_height">200dp</dimen>
+
+    <dimen name="margin_32dp">32dp</dimen>
+
+    <dimen name="negative_margin_80dp">-80dp</dimen>
+
+    <dimen name="button_height">60dp</dimen>
+</resources>

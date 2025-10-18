@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/bienvenida">
+
+
+    <fragment
+        android:id="@+id/planoInterno"
+        android:name="com.example.parkview.PlanoInterno"
+        android:label="fragment_plano_interno"
+        tools:layout="@layout/fragment_plano_interno" >
+
+        <action
+            android:id="@+id/action_planoInterno_to_camaras"
+            app:destination="@id/camaras" />
+
+        <action
+            android:id="@+id/action_planoInterno_to_save_location"
+            app:destination="@id/save_location" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/bienvenida"
+        android:name="com.example.parkview.Bienvenida"
+        android:label="fragment_bienvenida"
+        tools:layout="@layout/fragment_bienvenida" >
+        <action
+            android:id="@+id/action_bienvenida_to_login"
+            app:destination="@id/login" />
+        <action
+            android:id="@+id/action_bienvenida_to_register"
+            app:destination="@id/register" />
+        <action
+            android:id="@+id/action_bienvenida_to_dashboard"
+            app:destination="@id/dashboard"
+            app:popUpTo="@id/bienvenida"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/login"
+        android:name="com.example.parkview.Login"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/register" />
+        <action
+            android:id="@+id/action_login_to_dashboard"
+            app:destination="@id/dashboard"
+            app:popUpTo="@id/bienvenida"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_login_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/register"
+        android:name="com.example.parkview.Register"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_register_to_login"
+            app:destination="@id/login"
+            app:popUpTo="@id/login"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/dashboard"
+        android:name="com.example.parkview.dashboard"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_dashboard_to_save_location"
+            app:destination="@id/save_location" />
+        <action
+            android:id="@+id/action_dashboard_to_see_car"
+            app:destination="@id/see_car" />
+        <action
+            android:id="@+id/action_dashboard_to_camaras"
+            app:destination="@id/camaras" />
+        <action
+            android:id="@+id/action_dashboard_to_settings"
+            app:destination="@id/settings" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/save_location"
+        android:name="com.example.parkview.save_location"
+        android:label="fragment_save_location"
+        tools:layout="@layout/fragment_save_location" >
+        <action
+            android:id="@+id/action_save_location_to_settings"
+            app:destination="@id/settings" />
+        <action
+            android:id="@+id/action_save_location_to_confirmacionFragment"
+            app:destination="@id/confirmacionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/confirmacionFragment"
+        android:name="com.example.parkview.ConfirmacionFragment"
+        android:label="fragment_confirmacion"
+        tools:layout="@layout/fragment_confirmacion">
+        <action
+            android:id="@+id/action_confirmacionFragment_to_pagoExitosoFragment"
+            app:destination="@id/pagoExitosoFragment" />
+        <argument
+            android:name="spot"
+            app:argType="string" />
+        <argument
+            android:name="floor"
+            app:argType="integer" />
+        <argument
+            android:name="time"
+            app:argType="integer" />
+        <argument
+            android:name="price"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pagoExitosoFragment"
+        android:name="com.example.parkview.PagoExitosoFragment"
+        android:label="fragment_pago_exitoso"
+        tools:layout="@layout/fragment_pago_exitoso" >
+        <action
+            android:id="@+id/action_pagoExitosoFragment_to_dashboard"
+            app:destination="@id/dashboard"
+            app:popUpTo="@id/dashboard"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/see_car"
+        android:name="com.example.parkview.see_car"
+        android:label="fragment_see_car"
+        tools:layout="@layout/fragment_see_car" >
+        <action
+            android:id="@+id/action_see_car_to_googleMaps"
+            app:destination="@id/googleMaps" />
+        <action
+            android:id="@+id/action_see_car_to_planoInterno"
+            app:destination="@id/planoInterno" />
+        <action
+            android:id="@+id/action_see_car_to_save_location"
+            app:destination="@id/save_location" />
+        <action
+            android:id="@+id/action_see_car_to_camaras"
+            app:destination="@id/camaras" />
+    </fragment>
+
+    <!-- ### SECCIÓN CORREGIDA ### -->
+    <fragment
+        android:id="@+id/planoInterno"
+        android:name="com.example.parkview.PlanoInterno"
+        android:label="fragment_plano_interno"
+        tools:layout="@layout/fragment_plano_interno" >
+
+        <!-- Argumentos para el NUEVO sistema (piso y espacio) -->
+        <argument
+            android:name="floor"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="spot"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+        <!-- Argumentos para el sistema ANTIGUO (coordenadas) como fallback -->
+        <argument
+            android:name="normalizedX"
+            app:argType="float"
+            android:defaultValue="-1.0" />
+        <argument
+            android:name="normalizedY"
+            app:argType="float"
+            android:defaultValue="-1.0" />
+
+        <!-- Las acciones se quedan igual -->
+        <action
+            android:id="@+id/action_planoInterno_to_save_location"
+            app:destination="@id/save_location" />
+        <action
+            android:id="@+id/action_planoInterno_to_camaras"
+            app:destination="@id/camaras" />
+        <action
+            android:id="@+id/action_planoInterno_to_settings"
+            app:destination="@id/settings" />
+    </fragment>
+    <!-- ### FIN DE LA SECCIÓN CORREGIDA ### -->
+
+    <fragment
+        android:id="@+id/camaras"
+        android:name="com.example.parkview.Camaras"
+        android:label="fragment_camaras"
+        tools:layout="@layout/fragment_camaras" >
+        <action
+            android:id="@+id/action_camaras_to_settings"
+            app:destination="@id/settings" />
+        <action
+            android:id="@+id/action_camaras_to_reproductorCamara"
+            app:destination="@id/reproductorCamara" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reproductorCamara"
+        android:name="com.example.parkview.ReproductorCamara"
+        android:label="fragment_reproductor_camara"
+        tools:layout="@layout/fragment_reproductor_camara" >
+        <argument
+            android:name="cameraName"
+            app:argType="string" />
+        <argument
+            android:name="streamUrl"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_reproductorCamara_to_settings"
+            app:destination="@id/settings" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/googleMaps"
+        android:name="com.example.parkview.GoogleMaps"
+        android:label="fragment_google_maps"
+        tools:layout="@layout/fragment_google_maps" />
+
+    <fragment
+        android:id="@+id/settings"
+        android:name="com.example.parkview.settings"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settings_to_bienvenida"
+            app:destination="@id/bienvenida"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.parkview.ForgotPasswordFragment"
+        android:label="fragment_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" />
+
+</navigation>
