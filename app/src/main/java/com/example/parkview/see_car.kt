@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
@@ -24,6 +25,9 @@ class see_car : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private var lastLocationData: HashMap<String, Any>? = null
+
+    private lateinit var locationRef: DatabaseReference
+    private lateinit var locationListener: ValueEventListener
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,14 +71,22 @@ class see_car : Fragment() {
                 }
 
                 if (bundle.isEmpty) {
-                    Toast.makeText(context, "Los datos de la ubicación están corruptos.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Los datos de la ubicación están corruptos.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     findNavController().navigate(R.id.action_see_car_to_planoInterno, bundle)
                 }
                 // ### FIN DE LA LÓGICA CORREGIDA ###
 
             } else {
-                Toast.makeText(context, "No hay ubicación guardada para mostrar.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "No hay ubicación guardada para mostrar.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -97,7 +109,11 @@ class see_car : Fragment() {
                 startActivity(mapIntent)
             } else {
                 // Mensaje de error por si el usuario no tiene ninguna app de mapas
-                Toast.makeText(context, "No se encontró una aplicación de mapas.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "No se encontró una aplicación de mapas.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -108,20 +124,22 @@ class see_car : Fragment() {
 
     private fun loadCarLocation(view: View) {
         val userId = auth.currentUser?.uid ?: return
-        val dbRef = database.getReference("locations").child(userId).child("last_location")
+        locationRef = database.getReference("locations").child(userId).child("last_location")
         val tvPiso = view.findViewById<TextView>(R.id.tv_piso)
         val tvLugar = view.findViewById<TextView>(R.id.tv_lugar)
 
-        dbRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        locationListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                // Comprobación de seguridad: Asegura que el fragmento todavía esté adjunto
+                if (!isAdded) return
+
                 if (snapshot.exists()) {
                     lastLocationData = snapshot.value as? HashMap<String, Any>
                     val description = lastLocationData?.get("description") as? String
 
-                    // Mostramos la descripción si existe, si no, los datos individuales
                     if (!description.isNullOrEmpty()) {
-                        tvPiso.text = description // "Piso 1, Espacio A2"
-                        tvLugar.visibility = View.GONE // Ocultamos el segundo TextView si no es necesario
+                        tvPiso.text = description
+                        tvLugar.visibility = View.GONE
                     } else {
                         val floor = lastLocationData?.get("floor")
                         val spot = lastLocationData?.get("spot")
@@ -130,18 +148,32 @@ class see_car : Fragment() {
                         tvLugar.visibility = View.VISIBLE
                     }
                 } else {
+                    // Si el snapshot no existe (porque se borró la ubicación)
                     tvPiso.text = "No hay ubicación guardada"
                     tvLugar.text = ""
+                    tvLugar.visibility = View.GONE // Asegúrate de ocultar el segundo TextView
                     lastLocationData = null
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
+                if (!isAdded) return
+
                 tvPiso.text = "Error"
                 tvLugar.text = "Error al cargar"
                 Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_LONG).show()
                 lastLocationData = null
             }
-        })
+        }
+        locationRef.addValueEventListener(locationListener)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Es crucial remover el listener al destruir la vista para evitar fugas de memoria
+        if (::locationRef.isInitialized && ::locationListener.isInitialized) {
+            locationRef.removeEventListener(locationListener)
+        }
+    }
+
 }

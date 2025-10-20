@@ -77,25 +77,32 @@ class save_location : Fragment() {
         locationsRef = database.getReference("locations")
         locationsListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (!isAdded) return // Evita crashes si el fragment no está visible
-
+                if (!isAdded) return
                 val spots = mutableListOf<String>()
-                // Itera sobre todos los usuarios para encontrar los espacios ocupados
+                val currentUserId = auth.currentUser?.uid // Obtener ID del usuario actual
+
+                var currentUserSpot: String? = null // Variable temporal para el lugar del usuario
+
                 for (userSnapshot in snapshot.children) {
                     val lastLocation = userSnapshot.child("last_location")
                     if (lastLocation.exists()) {
                         val spotId = lastLocation.child("spot").getValue(String::class.java)
-                        spotId?.let { spots.add(it) }
+                        spotId?.let {
+                            spots.add(it)
+                            if (userSnapshot.key == currentUserId) {
+                                currentUserSpot = it
+                            }
+                        }
                     }
                 }
                 occupiedSpots = spots
-                // Una vez que tenemos la lista, actualizamos la grilla
                 updateParkingGrid()
             }
 
             override fun onCancelled(error: DatabaseError) {
                 if (isAdded) {
-                    Toast.makeText(context, "Error al cargar disponibilidad.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Error al cargar disponibilidad.", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -126,7 +133,8 @@ class save_location : Fragment() {
             spotView.layoutParams = params
 
             val spotIdTextView = spotView.findViewById<TextView>(R.id.spot_id_text)
-            val priceTextView = spotView.findViewById<TextView>(R.id.price_text) // Reusado como botón/etiqueta de estado
+            val priceTextView =
+                spotView.findViewById<TextView>(R.id.price_text) // Reusado como botón/etiqueta de estado
 
             spotIdTextView.text = spot
 
@@ -135,14 +143,16 @@ class save_location : Fragment() {
                 // ESTADO OCUPADO
                 spotView.setBackgroundResource(R.drawable.borde_discontinuo_ocupado)
                 priceTextView.text = "Ocupado"
-                priceTextView.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_background_gray)
+                priceTextView.background =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.button_background_gray)
                 spotView.isClickable = false // No se puede seleccionar
             } else {
                 // ESTADO LIBRE
                 spotView.setBackgroundResource(R.drawable.borde_discontinuo)
                 val initialPrice = defaultMaxTimeMinutes / 10
                 priceTextView.text = "Desde S/ ${initialPrice}.00"
-                priceTextView.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_background_blue)
+                priceTextView.background =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.button_background_blue)
 
                 // Habilitar el click solo si está libre
                 spotView.setOnClickListener {
@@ -161,8 +171,7 @@ class save_location : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Es CRUCIAL remover el listener para evitar fugas de memoria y crashes
-        if (::locationsRef.isInitialized) {
+        if (::locationsRef.isInitialized && ::locationsListener.isInitialized) {
             locationsRef.removeEventListener(locationsListener)
         }
     }
