@@ -8,6 +8,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
@@ -161,6 +162,12 @@ class ReproductorCamara : Fragment() {
             startCamera() // Reinicia la cámara con la nueva selección
             Toast.makeText(context, "Cambiando a $currentCameraName", Toast.LENGTH_SHORT).show()
         }
+
+        val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)
+        settingsIcon.setOnClickListener {
+            findNavController().navigate(R.id.action_reproductorCamara_to_settings)
+        }
+
     }
 
     // ----------------------------------------------------------------

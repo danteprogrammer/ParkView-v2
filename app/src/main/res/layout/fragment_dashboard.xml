@@ -196,6 +196,18 @@
 
         </LinearLayout>
         <!-- Fin Sección de Detalles Apilados -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_entendido_expiracion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button_background_gray"
+            android:text="Entendido"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_normal"
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
     </LinearLayout>
 

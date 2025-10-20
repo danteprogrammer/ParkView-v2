@@ -117,6 +117,11 @@ class see_car : Fragment() {
             }
         }
 
+        val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)
+        settingsIcon.setOnClickListener {
+            findNavController().navigate(R.id.action_see_car_to_settings)
+        }
+
         btnRegresar.setOnClickListener {
             findNavController().popBackStack()
         }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
+import android.widget.ImageView
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -46,6 +47,12 @@ class PlanoInterno : Fragment() {
         setupFloorSelection()
         setupButtons(view)
         fetchOccupiedSpots()
+
+        val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)
+        settingsIcon.setOnClickListener {
+            findNavController().navigate(R.id.action_save_location_to_settings)
+        }
+
     }
 
     private fun setupFloorSelection() {

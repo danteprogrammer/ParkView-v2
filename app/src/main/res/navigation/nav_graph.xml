@@ -172,6 +172,9 @@
         <action
             android:id="@+id/action_see_car_to_camaras"
             app:destination="@id/camaras" />
+        <action
+            android:id="@+id/action_see_car_to_settings"
+            app:destination="@id/settings" />
     </fragment>
 
     <fragment

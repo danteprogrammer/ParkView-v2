@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
@@ -55,6 +56,12 @@ class Camaras : Fragment() {
         // 3. Cargar datos
         loadLastLocation()
         setupCameraStatus()
+
+        val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)
+        settingsIcon.setOnClickListener {
+            findNavController().navigate(R.id.action_camaras_to_settings)
+        }
+
     }
 
     /**
