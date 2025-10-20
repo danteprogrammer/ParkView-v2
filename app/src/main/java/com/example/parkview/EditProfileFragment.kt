@@ -65,7 +65,7 @@ class EditProfileFragment : Fragment() {
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val name = snapshot.getValue(String::class.java)
-                        etNameEdit.setText(name ?: "") // Poner el nombre actual o vacío si no existe
+                        etNameEdit.setText(name ?: "")
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -82,7 +82,7 @@ class EditProfileFragment : Fragment() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Toast.makeText(context, "Nombre actualizado con éxito.", Toast.LENGTH_SHORT).show()
-                        findNavController().popBackStack() // Volver a settings
+                        findNavController().popBackStack()
                     } else {
                         Toast.makeText(context, "Error al actualizar nombre: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }

@@ -46,7 +46,7 @@ class Register : Fragment() {
 
         val tvHaveAccount = view.findViewById<TextView>(R.id.tv_have_account)
         tvHaveAccount.setOnClickListener {
-            // Navega a la pantalla de Login
+
             findNavController().navigate(R.id.action_register_to_login)
         }
 

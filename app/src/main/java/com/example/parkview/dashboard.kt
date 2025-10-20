@@ -35,7 +35,7 @@ class dashboard : Fragment() {
     private lateinit var tvLimitTimeLabel: TextView
     private var countdownTimer: CountDownTimer? = null
 
-    // Variables para manejar el ciclo de vida del oyente de Firebase
+
     private lateinit var dbRef: DatabaseReference
     private lateinit var lastLocationListener: ValueEventListener
 
@@ -55,7 +55,7 @@ class dashboard : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Cancelamos el temporizador y el oyente para evitar fugas de memoria y crashes
+
         countdownTimer?.cancel()
         if (::dbRef.isInitialized) {
             dbRef.removeEventListener(lastLocationListener)
@@ -65,32 +65,32 @@ class dashboard : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicializaciones de Firebase
+
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        // Referencias a TextViews
+
         welcomeTextView = view.findViewById(R.id.welcome_text)
         lastLocationTextView = view.findViewById(R.id.last_location_text)
         tvCountdownTimer = view.findViewById(R.id.tv_countdown_timer)
         tvLimitTime = view.findViewById(R.id.tv_limit_time)
         tvLimitTimeLabel = view.findViewById(R.id.tv_limit_time_label)
 
-        // Inicializamos el botón "Entendido" para ubicación expirada
+
         btnEntendidoExpiracion = view.findViewById(R.id.btn_entendido_expiracion)
 
-        // Adjuntamos el oyente de la última ubicación (después de inicializar el botón)
+
         attachLastLocationListener()
 
-        // Listener para el botón "Entendido"
+
         btnEntendidoExpiracion.setOnClickListener {
-            // Borra la ubicación de Firebase
+
             dbRef.removeValue()
-            // La UI se actualizará automáticamente gracias a attachLastLocationListener
+
             Toast.makeText(context, "Estado limpiado.", Toast.LENGTH_SHORT).show()
         }
 
-        // Referencias a botones del Dashboard
+
         val btnSaveLocation = view.findViewById<AppCompatButton>(R.id.btn_save_location)
         val btnSeeCar = view.findViewById<AppCompatButton>(R.id.btn_see_car)
         val btnSeeCameras = view.findViewById<AppCompatButton>(R.id.btn_see_cameras)
@@ -99,7 +99,7 @@ class dashboard : Fragment() {
         val buttons = listOf(btnSaveLocation, btnSeeCar, btnSeeCameras)
         btnSaveLocation.isSelected = true
 
-        // Listener común para cambiar selección y navegar
+
         buttons.forEach { button ->
             button.setOnClickListener {
                 buttons.forEach { it.isSelected = false }
@@ -113,7 +113,7 @@ class dashboard : Fragment() {
             }
         }
 
-        // Listener para el icono de configuración
+
         settingsIcon.setOnClickListener {
             findNavController().navigate(R.id.action_dashboard_to_settings)
         }
@@ -126,10 +126,10 @@ class dashboard : Fragment() {
 
         lastLocationListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (!isAdded) return // Comprobación de seguridad extra
+                if (!isAdded) return
 
-                countdownTimer?.cancel() // Cancela cualquier timer anterior
-                // Oculta el botón "Entendido" por defecto
+                countdownTimer?.cancel()
+
                 btnEntendidoExpiracion.visibility = View.GONE
 
                 if (snapshot.exists()) {
@@ -137,7 +137,7 @@ class dashboard : Fragment() {
                     val timestamp = snapshot.child("timestamp").getValue(Long::class.java)
                     val maxStayMinutes = snapshot.child("maxStayMinutes").getValue(Int::class.java)
                     val status = snapshot.child("status")
-                        .getValue(String::class.java) // Nuevo: leemos status
+                        .getValue(String::class.java)
 
                     if (description == null || timestamp == null || maxStayMinutes == null) {
                         lastLocationTextView.text = "Datos de ubicación incompletos"
@@ -152,9 +152,9 @@ class dashboard : Fragment() {
                     val ubicacionYHora =
                         "Última ubicación: $cleanDescription\nHora de registro: $horaExactaRegistro"
 
-                    // --- INICIO: Lógica modificada por status ---
+
                     if (status == "expired") {
-                        // ESTADO EXPIRADO
+
                         lastLocationTextView.text = ubicacionYHora
                         tvCountdownTimer.text = "¡Tiempo Expirado!"
                         tvCountdownTimer.setTextColor(
@@ -169,7 +169,7 @@ class dashboard : Fragment() {
                         tvLimitTimeLabel.visibility = View.VISIBLE
                         btnEntendidoExpiracion.visibility = View.VISIBLE
                     } else {
-                        // ESTADO ACTIVO
+
                         val maxStayMillis = TimeUnit.MINUTES.toMillis(maxStayMinutes.toLong())
                         val elapsedTime = System.currentTimeMillis() - timestamp
                         val timeLeftMillis = maxStayMillis - elapsedTime
@@ -179,16 +179,16 @@ class dashboard : Fragment() {
                         if (timeLeftMillis > 1000) {
                             startCountdown(timeLeftMillis, maxStayMinutes, timestamp)
                         } else {
-                            // Si el tiempo se acabó pero no está marcado como "expired"
+
                             if (status != "expired") {
                                 dbRef.child("status").setValue("expired")
                             }
-                            // La UI se actualizará automáticamente en la siguiente llamada a onDataChange
+
                         }
                     }
-                    // --- FIN: Lógica modificada por status ---
+
                 } else {
-                    // No hay ubicación
+
                     lastLocationTextView.text = "No hay ubicación guardada"
                     tvCountdownTimer.visibility = View.GONE
                     tvLimitTime.visibility = View.GONE
@@ -251,10 +251,10 @@ class dashboard : Fragment() {
 
             override fun onFinish() {
                 if (!isAdded) return
-                // YA NO BORRAMOS AQUÍ, solo actualizamos el estado en Firebase
+
                 dbRef.child("status").setValue("expired")
                     .addOnFailureListener {
-                        // Si falla al marcar como expirado, como fallback, borramos.
+
                         if (isAdded) {
                             Toast.makeText(
                                 context,
@@ -264,7 +264,7 @@ class dashboard : Fragment() {
                             dbRef.removeValue()
                         }
                     }
-                // Las actualizaciones visuales se manejarán en onDataChange al leer el status "expired"
+
             }
         }.start()
 

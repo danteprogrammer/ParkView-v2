@@ -42,29 +42,28 @@ class see_car : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        // --- Referencias a los botones ---
+
         val btnVerPlano = view.findViewById<AppCompatButton>(R.id.btn_ver_plano)
-        // El ImageView fue reemplazado por un Button:
+
         val btnNavegarMaps = view.findViewById<AppCompatButton>(R.id.btn_navegar_maps)
         val btnRegresar = view.findViewById<AppCompatButton>(R.id.btn_regresar_see_car)
 
-        loadCarLocation(view) // Carga los datos de la ubicación
+        loadCarLocation(view)
 
-        // --- Lógica de OnClick para CADA botón ---
+
 
         btnVerPlano.setOnClickListener {
             if (lastLocationData != null) {
-                // ### LÓGICA CORREGIDA ###
-                // Preparamos los datos para enviar a PlanoInterno de forma segura
+
                 val bundle = Bundle()
                 val data = lastLocationData!!
 
-                // Verificamos si es el NUEVO sistema (con piso y lugar)
+
                 if (data.containsKey("floor") && data.containsKey("spot")) {
                     bundle.putInt("floor", (data["floor"] as Long).toInt())
                     bundle.putString("spot", data["spot"] as String)
                 }
-                // Si no, verificamos si es el sistema ANTIGUO (con coordenadas)
+
                 else if (data.containsKey("normalizedX") && data.containsKey("normalizedY")) {
                     bundle.putFloat("normalizedX", (data["normalizedX"] as Double).toFloat())
                     bundle.putFloat("normalizedY", (data["normalizedY"] as Double).toFloat())
@@ -79,7 +78,7 @@ class see_car : Fragment() {
                 } else {
                     findNavController().navigate(R.id.action_see_car_to_planoInterno, bundle)
                 }
-                // ### FIN DE LA LÓGICA CORREGIDA ###
+
 
             } else {
                 Toast.makeText(
@@ -90,25 +89,23 @@ class see_car : Fragment() {
             }
         }
 
-        // --- ¡AQUÍ ESTÁ LA NUEVA LÓGICA! ---
         btnNavegarMaps.setOnClickListener {
-            // Coordenadas de ejemplo: Estacionamiento Los Portales, Parque Kennedy, Miraflores
+
             val latitud = "-12.121852"
             val longitud = "-77.030367"
             val etiqueta = "Estacionamiento Los Portales (Parque Kennedy)"
 
-            // Creamos el URI para el Intent de Geo-localización
-            // El 'q=' define el marcador y la etiqueta
+
             val gmmIntentUri = Uri.parse("geo:$latitud,$longitud?q=$latitud,$longitud($etiqueta)")
 
-            // Creamos el Intent para ver el mapa
+
             val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
 
-            // Verificamos si hay alguna app que pueda manejar este Intent (como Google Maps)
+
             if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {
                 startActivity(mapIntent)
             } else {
-                // Mensaje de error por si el usuario no tiene ninguna app de mapas
+
                 Toast.makeText(
                     context,
                     "No se encontró una aplicación de mapas.",
@@ -135,7 +132,7 @@ class see_car : Fragment() {
 
         locationListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // Comprobación de seguridad: Asegura que el fragmento todavía esté adjunto
+
                 if (!isAdded) return
 
                 if (snapshot.exists()) {
@@ -153,10 +150,10 @@ class see_car : Fragment() {
                         tvLugar.visibility = View.VISIBLE
                     }
                 } else {
-                    // Si el snapshot no existe (porque se borró la ubicación)
+
                     tvPiso.text = "No hay ubicación guardada"
                     tvLugar.text = ""
-                    tvLugar.visibility = View.GONE // Asegúrate de ocultar el segundo TextView
+                    tvLugar.visibility = View.GONE
                     lastLocationData = null
                 }
             }
@@ -175,7 +172,7 @@ class see_car : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Es crucial remover el listener al destruir la vista para evitar fugas de memoria
+
         if (::locationRef.isInitialized && ::locationListener.isInitialized) {
             locationRef.removeEventListener(locationListener)
         }

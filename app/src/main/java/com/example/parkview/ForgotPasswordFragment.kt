@@ -52,7 +52,7 @@ class ForgotPasswordFragment : Fragment() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(context, "Correo de recuperación enviado.", Toast.LENGTH_LONG).show()
-                    findNavController().popBackStack() // Regresa a Login después de enviar
+                    findNavController().popBackStack()
                 } else {
                     Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }

@@ -71,7 +71,7 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- TextView modificado: Se le agrega un ID para actualizar la ubicación dinámicamente -->
+
         <TextView
             android:id="@+id/tv_current_location_camaras"
             android:layout_width="wrap_content"

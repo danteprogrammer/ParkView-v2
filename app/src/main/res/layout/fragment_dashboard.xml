@@ -125,7 +125,7 @@
                 />
         </LinearLayout>
 
-        <!-- Sección del Temporizador (SOLO CRONÓMETRO) -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -161,10 +161,10 @@
                 tools:visibility="visible"/>
 
         </LinearLayout>
-        <!-- Fin Sección del Temporizador -->
 
 
-        <!-- Sección de Detalles Apilados (UBICACIÓN, HORA DE REGISTRO, VENCIMIENTO) -->
+
+
         <LinearLayout
             android:id="@+id/last_location_details_container"
             android:layout_width="match_parent"
@@ -174,7 +174,7 @@
             android:paddingTop="4dp"
             android:paddingBottom="4dp">
 
-            <!-- 1. ÚLTIMA UBICACIÓN y HORA DE REGISTRO (Manejado por Kotlin en una sola vista) -->
+
             <TextView
                 android:id="@+id/last_location_text"
                 android:layout_width="wrap_content"
@@ -183,7 +183,7 @@
                 android:textColor="@color/black"
                 android:textSize="@dimen/text_size_normal" />
 
-            <!-- 2. VENCIMIENTO (Ahora usa el mismo tamaño de texto) -->
+
             <TextView
                 android:id="@+id/tv_limit_time"
                 android:layout_width="wrap_content"
@@ -195,7 +195,7 @@
                 tools:visibility="visible"/>
 
         </LinearLayout>
-        <!-- Fin Sección de Detalles Apilados -->
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_entendido_expiracion"
             android:layout_width="match_parent"

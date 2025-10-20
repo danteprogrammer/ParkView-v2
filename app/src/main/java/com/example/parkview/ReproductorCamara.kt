@@ -26,28 +26,28 @@ import androidx.navigation.fragment.navArgs
 
 class ReproductorCamara : Fragment() {
 
-    // Constantes para los nombres de las cámaras
+
     private val CAMARA_PASILLO = "Cámara - Pasillo"
     private val CAMARA_SUPERIOR = "Cámara - Superior"
 
     private val args: ReproductorCamaraArgs by navArgs()
 
-    // Variables y constantes para la cámara
+
     private val REQUEST_CODE_PERMISSIONS = 10
     private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     private lateinit var cameraExecutor: ExecutorService
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var previewView: PreviewView
 
-    // VARIABLES DE CLASE
+
     private lateinit var tvReproductorTitle: TextView
     private lateinit var btnCambiarCamara: AppCompatButton
     private lateinit var controlsLayout: View
     private lateinit var reproductorCard: LinearLayout
 
-    // Estado del reproductor
+
     private var isMuted = false
-    // Usaremos un valor simple para rastrear el estado actual de la cámara
+
     private var isBackCameraSelected: Boolean = true
     private var currentCameraName: String = CAMARA_PASILLO
     private var imageCapture: ImageCapture? = null
@@ -61,9 +61,6 @@ class ReproductorCamara : Fragment() {
         ).toInt()
     }
 
-    // ----------------------------------------------------------------
-    // CICLO DE VIDA
-    // ----------------------------------------------------------------
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -83,35 +80,29 @@ class ReproductorCamara : Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
-        // ----------------------------------------------------------------
-        // INICIALIZACIÓN DE VIEWS Y REFERENCIAS
-        // ----------------------------------------------------------------
+
         previewView = view.findViewById(R.id.cameraPreview)
         tvReproductorTitle = view.findViewById(R.id.tv_reproductor_title)
         btnCambiarCamara = view.findViewById(R.id.btn_cambiar_camara)
         controlsLayout = view.findViewById(R.id.controls_layout)
         reproductorCard = view.findViewById(R.id.reproductor_card)
 
-        // --- LÓGICA MODIFICADA ---
-        // Lee los argumentos recibidos en lugar de usar valores fijos
+
         val streamUrl = args.streamUrl
         currentCameraName = args.cameraName
-        // Decide qué cámara seleccionar basado en el argumento
         isBackCameraSelected = streamUrl == "simulated_back_camera"
-        // --- FIN DE LÓGICA MODIFICADA ---
 
         tvReproductorTitle.text = currentCameraName
 
-        // Manejo de Permisos
+
         if (allPermissionsGranted()) {
             startCamera()
         } else {
             requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        // --- Lógica de botones ---
         view.findViewById<AppCompatButton>(R.id.btn_play).setOnClickListener {
-            // Usamos el selector de cámara actual
+
             val selector = if (isBackCameraSelected) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
             previewUseCase?.let { cameraProvider?.bindToLifecycle(viewLifecycleOwner, selector, it) }
             imageCapture?.let { cameraProvider?.bindToLifecycle(viewLifecycleOwner, selector, it) }
@@ -127,30 +118,30 @@ class ReproductorCamara : Fragment() {
             toggleAudio()
         }
 
-        // *** CÓDIGO CORREGIDO: NAVEGACIÓN A PANTALLA HORIZONTAL CON SAFE ARGS ***
+
         view.findViewById<AppCompatButton>(R.id.btn_fullscreen).setOnClickListener {
-            // 1. Detenemos la cámara antes de navegar para liberar recursos
+
             cameraProvider?.unbindAll()
 
-            // 2. Usamos la variable de estado para definir el argumento
+
             val cameraSelectorIdentifier = if (isBackCameraSelected) "BACK" else "FRONT"
 
             val action = ReproductorCamaraDirections.actionReproductorCamaraToReproductorHorizontal(
                 cameraSelectorKey = cameraSelectorIdentifier
             )
 
-            // 3. Navegamos al nuevo fragmento
+
             try {
                 findNavController().navigate(action)
             } catch (e: Exception) {
                 Toast.makeText(context, "Error de navegación a Fullscreen: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
-        // *************************************************
 
-        // Lógica de Cambiar Cámara
+
+
         btnCambiarCamara.setOnClickListener {
-            // Invertimos el estado
+
             isBackCameraSelected = !isBackCameraSelected
 
             if (isBackCameraSelected) {
@@ -159,7 +150,7 @@ class ReproductorCamara : Fragment() {
                 currentCameraName = CAMARA_SUPERIOR
             }
             tvReproductorTitle.text = currentCameraName
-            startCamera() // Reinicia la cámara con la nueva selección
+            startCamera()
             Toast.makeText(context, "Cambiando a $currentCameraName", Toast.LENGTH_SHORT).show()
         }
 
@@ -170,9 +161,6 @@ class ReproductorCamara : Fragment() {
 
     }
 
-    // ----------------------------------------------------------------
-    // LÓGICA DE CÁMARA
-    // ----------------------------------------------------------------
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
@@ -180,7 +168,7 @@ class ReproductorCamara : Fragment() {
             cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build().also { it.setSurfaceProvider(previewView.surfaceProvider) }
             previewUseCase = preview
-            // El selector de cámara se determina por el estado booleano
+
             val currentSelector = if (isBackCameraSelected) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
             imageCapture = ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build()
@@ -198,18 +186,18 @@ class ReproductorCamara : Fragment() {
 
     private fun toggleAudio(forceMute: Boolean = false) {
         val newState = if (forceMute) true else !isMuted
-        val capture = imageCapture ?: return // Salir si imageCapture es nulo
+        val capture = imageCapture ?: return
 
-        // Usamos el selector de cámara actual para el re-binding
+
         val currentSelector = if (isBackCameraSelected) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
         if (newState) {
-            // Desvincular imageCapture para simular silencio (sin audio)
+
             cameraProvider?.unbind(capture)
             isMuted = true
             if (!forceMute) Toast.makeText(context, "Audio silenciado", Toast.LENGTH_SHORT).show()
         } else {
-            // Volver a vincular imageCapture para simular audio activado
+
             cameraProvider?.bindToLifecycle(viewLifecycleOwner, currentSelector, capture)
             isMuted = false
             Toast.makeText(context, "Audio activado", Toast.LENGTH_SHORT).show()

@@ -21,11 +21,11 @@ class save_location : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
 
-    // --- Variables para la lógica del plano ---
+
     private lateinit var locationsRef: DatabaseReference
     private lateinit var locationsListener: ValueEventListener
     private var occupiedSpots = listOf<String>()
-    // --- Fin de variables para el plano ---
+
 
     private var selectedFloor: Int = 1
     private lateinit var gridLayoutParking: GridLayout
@@ -49,7 +49,7 @@ class save_location : Fragment() {
         gridLayoutParking = view.findViewById(R.id.grid_layout_parking)
         rgPisos = view.findViewById(R.id.rg_pisos)
 
-        // Inicia la escucha de los espacios ocupados
+
         attachOccupiedSpotsListener()
 
         rgPisos.setOnCheckedChangeListener { _, checkedId ->
@@ -58,7 +58,7 @@ class save_location : Fragment() {
                 R.id.rb_piso3 -> 3
                 else -> 1
             }
-            // Actualiza la grilla al cambiar de piso
+
             updateParkingGrid()
         }
 
@@ -79,9 +79,9 @@ class save_location : Fragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded) return
                 val spots = mutableListOf<String>()
-                val currentUserId = auth.currentUser?.uid // Obtener ID del usuario actual
+                val currentUserId = auth.currentUser?.uid
 
-                var currentUserSpot: String? = null // Variable temporal para el lugar del usuario
+                var currentUserSpot: String? = null
 
                 for (userSnapshot in snapshot.children) {
                     val lastLocation = userSnapshot.child("last_location")
@@ -110,7 +110,7 @@ class save_location : Fragment() {
     }
 
     private fun updateParkingGrid() {
-        if (!isAdded) return // Comprobación de seguridad
+        if (!isAdded) return
 
         gridLayoutParking.removeAllViews()
         val inflater = LayoutInflater.from(context)
@@ -138,23 +138,23 @@ class save_location : Fragment() {
 
             spotIdTextView.text = spot
 
-            // ---- LÓGICA DE DISPONIBILIDAD ----
+
             if (occupiedSpots.contains(spot)) {
-                // ESTADO OCUPADO
+
                 spotView.setBackgroundResource(R.drawable.borde_discontinuo_ocupado)
                 priceTextView.text = "Ocupado"
                 priceTextView.background =
                     ContextCompat.getDrawable(requireContext(), R.drawable.button_background_gray)
-                spotView.isClickable = false // No se puede seleccionar
+                spotView.isClickable = false
             } else {
-                // ESTADO LIBRE
+
                 spotView.setBackgroundResource(R.drawable.borde_discontinuo)
                 val initialPrice = defaultMaxTimeMinutes / 10
                 priceTextView.text = "Desde S/ ${initialPrice}.00"
                 priceTextView.background =
                     ContextCompat.getDrawable(requireContext(), R.drawable.button_background_blue)
 
-                // Habilitar el click solo si está libre
+
                 spotView.setOnClickListener {
                     val action = save_locationDirections.actionSaveLocationToConfirmacionFragment(
                         spot = spot,
