@@ -13,7 +13,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.slider.Slider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+
 
 class ConfirmacionFragment : Fragment() {
 
@@ -21,9 +25,11 @@ class ConfirmacionFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
 
-    // Variables para guardar el tiempo y precio seleccionados
     private var currentMinutes: Int = 0
     private var currentPrice: Int = 0
+
+    private var clientName: String = "Usuario"
+    private lateinit var tvNombreUsuario: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,40 +44,34 @@ class ConfirmacionFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        // Referencias a las vistas
         val tvEspacio: TextView = view.findViewById(R.id.tv_espacio_confirmacion)
-        val etNombre: EditText = view.findViewById(R.id.et_nombre_completo)
+        tvNombreUsuario = view.findViewById(R.id.tv_nombre_usuario)
         val btnPagar: Button = view.findViewById(R.id.btn_pagar_ahora)
         val tvMinutos: TextView = view.findViewById(R.id.tv_minutos_seleccionados)
         val sliderTiempo: Slider = view.findViewById(R.id.slider_tiempo_maximo)
         val tvPrecio: TextView = view.findViewById(R.id.tv_precio_confirmacion)
 
-        // 1. Configurar el estado inicial desde los datos recibidos
         currentMinutes = args.time
         currentPrice = args.price
+
 
         tvEspacio.text = "Espacio: ${args.spot}"
         tvMinutos.text = "$currentMinutes minutos"
         sliderTiempo.value = currentMinutes.toFloat()
         tvPrecio.text = "Precio: S/ $currentPrice.00"
 
-        // 2. Listener para cuando el usuario mueva el slider
+        loadUserName()
+
         sliderTiempo.addOnChangeListener { _, value, _ ->
             currentMinutes = value.toInt()
-            currentPrice = currentMinutes / 10 // Recalcula el precio
+            currentPrice = currentMinutes / 10
 
             tvMinutos.text = "$currentMinutes minutos"
             tvPrecio.text = "Precio: S/ $currentPrice.00"
         }
 
-        // 3. Configurar el botón de pagar
         btnPagar.setOnClickListener {
-            val nombre = etNombre.text.toString()
-            if (nombre.isBlank()) {
-                Toast.makeText(context, "Por favor, ingresa tu nombre.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            saveLocationToFirebase(nombre)
+            saveLocationToFirebase(clientName)
         }
     }
 
@@ -86,8 +86,8 @@ class ConfirmacionFragment : Fragment() {
             "floor" to args.floor,
             "spot" to args.spot,
             "timestamp" to timestamp,
-            "maxStayMinutes" to currentMinutes, // Guarda el valor actualizado
-            "price" to currentPrice,         // Guarda el valor actualizado
+            "maxStayMinutes" to currentMinutes,
+            "price" to currentPrice,
             "clientName" to nombreCliente
         )
 
@@ -101,5 +101,24 @@ class ConfirmacionFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(context, "Error al guardar: ${it.message}", Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun loadUserName() {
+        val userId = auth.currentUser?.uid ?: return
+        database.getReference("users").child(userId).child("name")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!isAdded) return
+                    val name = snapshot.getValue(String::class.java)
+                    clientName = name ?: "Usuario"
+                    tvNombreUsuario.text = "Cliente: $clientName"
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    if (!isAdded) return
+                    clientName = "Usuario"
+                    tvNombreUsuario.text = "Cliente: Usuario"
+                }
+            })
     }
 }

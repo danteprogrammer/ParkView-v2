@@ -194,6 +194,7 @@ class dashboard : Fragment() {
                 tvCountdownTimer.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark))
                 tvLimitTime.visibility = View.GONE
                 tvLimitTimeLabel.text = "¡La ubicación ha expirado!"
+                dbRef.removeValue()
             }
         }.start()
 

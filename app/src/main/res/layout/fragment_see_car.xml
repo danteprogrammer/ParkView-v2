@@ -98,10 +98,15 @@
             android:textSize="22sp"/>
 
 
-        <Space
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/mapa_estacionamiento"
+            android:scaleType="centerInside"
+            android:contentDescription="Ilustración de estacionamiento" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_ver_plano"

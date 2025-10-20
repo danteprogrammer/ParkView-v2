@@ -25,6 +25,14 @@
         android:layout_marginBottom="16dp"/>
 
     <TextView
+        android:id="@+id/tv_nombre_usuario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cliente: Cargando..."
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Tiempo de estadía:"
@@ -66,14 +74,6 @@
         android:textSize="22sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp"/>
-
-    <EditText
-        android:id="@+id/et_nombre_completo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Ingresa tu nombre completo"
-        android:inputType="textPersonName"
-        android:layout_marginBottom="32dp"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_pagar_ahora"

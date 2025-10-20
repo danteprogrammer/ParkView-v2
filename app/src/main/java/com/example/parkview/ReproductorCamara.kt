@@ -21,13 +21,15 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.activity.OnBackPressedCallback
 import android.widget.LinearLayout
-import androidx.navigation.fragment.navArgs // No se usa aquí, pero se mantuvo en la versión anterior.
+import androidx.navigation.fragment.navArgs
 
 class ReproductorCamara : Fragment() {
 
     // Constantes para los nombres de las cámaras
     private val CAMARA_PASILLO = "Cámara - Pasillo"
     private val CAMARA_SUPERIOR = "Cámara - Superior"
+
+    private val args: ReproductorCamaraArgs by navArgs()
 
     // Variables y constantes para la cámara
     private val REQUEST_CODE_PERMISSIONS = 10
@@ -88,6 +90,14 @@ class ReproductorCamara : Fragment() {
         btnCambiarCamara = view.findViewById(R.id.btn_cambiar_camara)
         controlsLayout = view.findViewById(R.id.controls_layout)
         reproductorCard = view.findViewById(R.id.reproductor_card)
+
+        // --- LÓGICA MODIFICADA ---
+        // Lee los argumentos recibidos en lugar de usar valores fijos
+        val streamUrl = args.streamUrl
+        currentCameraName = args.cameraName
+        // Decide qué cámara seleccionar basado en el argumento
+        isBackCameraSelected = streamUrl == "simulated_back_camera"
+        // --- FIN DE LÓGICA MODIFICADA ---
 
         tvReproductorTitle.text = currentCameraName
 

@@ -82,76 +82,92 @@
             android:textColor="@android:color/darker_gray"
             android:textSize="16sp" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_marginTop="24dp"
-            android:src="@drawable/camara_carros"
-            android:scaleType="centerCrop"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:text="Cámara - Pasillo"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"/>
 
-        <TextView
-            android:id="@+id/tv_status_pasillo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Estado: Cargando..."
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_ver_camara_pasillo"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/button_selector"
-            android:text="Ver"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text_selector"
-            android:textSize="16sp" />
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="0dp"
             android:layout_marginTop="16dp"
-            android:src="@drawable/camara_carros"
-            android:scaleType="centerCrop"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:text="Cámara - Vista superior"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"/>
+            android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/tv_status_superior"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Estado: Cargando..."
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_ver_camara_superior"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/button_selector"
-            android:text="Ver"
-            android:enabled="false"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text_selector"
-            android:textSize="16sp" />
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginTop="24dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/camara_carros" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:text="Cámara - Pasillo"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_status_pasillo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Estado: Cargando..."
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_ver_camara_pasillo"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="Ver"
+                    android:textAllCaps="false"
+                    android:textColor="@color/button_text_selector"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginTop="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/camara_carros" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:text="Cámara - Vista superior"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_status_superior"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Estado: Cargando..."
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_ver_camara_superior"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/button_selector"
+                    android:enabled="false"
+                    android:text="Ver"
+                    android:textAllCaps="false"
+                    android:textColor="@color/button_text_selector"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </ScrollView>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_regresar_camaras"

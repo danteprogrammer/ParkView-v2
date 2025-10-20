@@ -24,6 +24,7 @@ class PlanoInterno : Fragment() {
 
     private var selectedFloor: Int = 1
     private var occupiedSpots = listOf<String>()
+    private var mySpot: String? = null
     private lateinit var locationsRef: DatabaseReference
     private lateinit var locationsListener: ValueEventListener
 
@@ -88,11 +89,13 @@ class PlanoInterno : Fragment() {
             return
         }
 
-        val userLocationRef = database.getReference("locations").child(userId).child("last_location")
+        val userLocationRef =
+            database.getReference("locations").child(userId).child("last_location")
 
         userLocationRef.removeValue()
             .addOnSuccessListener {
-                Toast.makeText(context, "Ubicación borrada exitosamente.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Ubicación borrada exitosamente.", Toast.LENGTH_SHORT)
+                    .show()
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Error al borrar la ubicación.", Toast.LENGTH_SHORT).show()
@@ -106,11 +109,19 @@ class PlanoInterno : Fragment() {
                 if (!isAdded) return
 
                 val spots = mutableListOf<String>()
+                mySpot = null
+                val currentUserId = auth.currentUser?.uid
+
                 for (userSnapshot in snapshot.children) {
                     val lastLocation = userSnapshot.child("last_location")
                     if (lastLocation.exists()) {
                         val spotId = lastLocation.child("spot").getValue(String::class.java)
-                        spotId?.let { spots.add(it) }
+                        spotId?.let {
+                            spots.add(it)
+                            if (userSnapshot.key == currentUserId) {
+                                mySpot = it
+                            }
+                        }
                     }
                 }
                 occupiedSpots = spots
@@ -153,13 +164,15 @@ class PlanoInterno : Fragment() {
 
             spotIdTextView.text = spot
 
-            if (occupiedSpots.contains(spot)) {
-                // ---- ESTADO OCUPADO ----
+            if (spot == mySpot) {
+                spotView.setBackgroundResource(R.drawable.borde_discontinuo_ocupado)
+                statusTextView.text = "Mi Auto"
+                statusTextView.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_background_blue)
+            } else if (occupiedSpots.contains(spot)) {
                 spotView.setBackgroundResource(R.drawable.borde_discontinuo_ocupado)
                 statusTextView.text = "Ocupado"
                 statusTextView.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_background_gray)
             } else {
-                // ---- ESTADO LIBRE ----
                 spotView.setBackgroundResource(R.drawable.borde_discontinuo)
                 statusTextView.text = "Libre"
                 statusTextView.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_background_blue)
