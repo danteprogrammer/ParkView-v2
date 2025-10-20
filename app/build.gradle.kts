@@ -19,6 +19,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        // SOLUCIÓN: Habilitar View Binding para generar la clase FragmentReproductorHorizontalBinding
+        viewBinding = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

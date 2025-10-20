@@ -1,17 +1,15 @@
 package com.example.parkview
 
+import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
-import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -19,109 +17,111 @@ import com.google.firebase.database.ValueEventListener
 
 class Camaras : Fragment() {
 
+    private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
-
-    // Declaramos todos los elementos de la UI que vamos a controlar
-    private lateinit var btnVerCamaraPasillo: AppCompatButton
-    private lateinit var btnVerCamaraSuperior: AppCompatButton
+    private lateinit var tvCurrentLocationCamaras: TextView
     private lateinit var tvStatusPasillo: TextView
     private lateinit var tvStatusSuperior: TextView
-
+    private lateinit var btnVerCamaraPasillo: AppCompatButton
+    private lateinit var btnVerCamaraSuperior: AppCompatButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflar el layout para este fragmento
         return inflater.inflate(R.layout.fragment_camaras, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 1. Inicialización de Firebase
+        auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        // Inicializamos las vistas con sus IDs del XML
-        btnVerCamaraPasillo = view.findViewById(R.id.btn_ver_camara_pasillo)
-        btnVerCamaraSuperior = view.findViewById(R.id.btn_ver_camara_superior)
+        // 2. Inicialización de Vistas
+        tvCurrentLocationCamaras = view.findViewById(R.id.tv_current_location_camaras)
         tvStatusPasillo = view.findViewById(R.id.tv_status_pasillo)
         tvStatusSuperior = view.findViewById(R.id.tv_status_superior)
+        btnVerCamaraPasillo = view.findViewById(R.id.btn_ver_camara_pasillo)
+        btnVerCamaraSuperior = view.findViewById(R.id.btn_ver_camara_superior)
 
-
-        // Navegación
-        val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)
-        settingsIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_camaras_to_settings)
+        // Configurar el botón de regreso
+        view.findViewById<AppCompatButton>(R.id.btn_regresar_camaras).setOnClickListener {
+            findNavController().navigateUp()
         }
 
-        val btnRegresar = view.findViewById<AppCompatButton>(R.id.btn_regresar_camaras)
-        btnRegresar.setOnClickListener {
-            findNavController().popBackStack()
-        }
-
-        // Cargamos los datos de las cámaras desde Firebase
-        loadCameraData()
+        // 3. Cargar datos
+        loadLastLocation()
+        setupCameraStatus()
     }
 
-    private fun loadCameraData() {
-        val dbRef = database.getReference("cameras")
+    /**
+     * Carga la última ubicación guardada por el usuario desde Firebase
+     * y la muestra en el TextView del encabezado.
+     */
+    private fun loadLastLocation() {
+        val userId = auth.currentUser?.uid ?: return
+        val dbRef = database.getReference("locations").child(userId).child("last_location")
 
-        dbRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        dbRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists()) {
-                    Toast.makeText(context, "No se encontraron datos de cámaras en Firebase.", Toast.LENGTH_LONG).show()
-                    return
-                }
+                if (snapshot.exists()) {
+                    val description = snapshot.child("description").getValue(String::class.java)
 
-                // --- Procesar Cámara del Pasillo ---
-                val camPasillo = snapshot.child("cam_pasillo")
-                val pasilloName = camPasillo.child("name").getValue(String::class.java)
-                val pasilloStatus = camPasillo.child("status").getValue(String::class.java)
-                val pasilloUrl = camPasillo.child("streamUrl").getValue(String::class.java)
-
-                if (pasilloStatus == "Online") {
-                    tvStatusPasillo.text = "Estado: Online"
-                    tvStatusPasillo.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
-                    btnVerCamaraPasillo.isEnabled = true
-                    btnVerCamaraPasillo.setOnClickListener {
-                        val bundle = bundleOf(
-                            "cameraName" to pasilloName,
-                            "streamUrl" to pasilloUrl
-                        )
-                        findNavController().navigate(R.id.action_camaras_to_reproductorCamara, bundle)
+                    if (description != null) {
+                        // Limpiamos el texto para dejar solo las coordenadas o la ubicación clave
+                        val cleanDescription = description.replace("Plano ", "").trim()
+                        tvCurrentLocationCamaras.text = "Ubicación Guardada: $cleanDescription"
+                    } else {
+                        tvCurrentLocationCamaras.text = "No hay ubicación guardada"
                     }
                 } else {
-                    tvStatusPasillo.text = "Estado: Offline"
-                    tvStatusPasillo.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark))
-                    btnVerCamaraPasillo.isEnabled = false
-                }
-
-                // --- Procesar Cámara Superior ---
-                val camSuperior = snapshot.child("cam_superior")
-                val superiorName = camSuperior.child("name").getValue(String::class.java)
-                val superiorStatus = camSuperior.child("status").getValue(String::class.java)
-                val superiorUrl = camSuperior.child("streamUrl").getValue(String::class.java)
-
-                if (superiorStatus == "Online") {
-                    tvStatusSuperior.text = "Estado: Online"
-                    tvStatusSuperior.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
-                    btnVerCamaraSuperior.isEnabled = true
-                    btnVerCamaraSuperior.setOnClickListener {
-                        val bundle = bundleOf(
-                            "cameraName" to superiorName,
-                            "streamUrl" to superiorUrl
-                        )
-                        findNavController().navigate(R.id.action_camaras_to_reproductorCamara, bundle)
-                    }
-                } else {
-                    tvStatusSuperior.text = "Estado: Offline"
-                    tvStatusSuperior.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark))
-                    btnVerCamaraSuperior.isEnabled = false
+                    tvCurrentLocationCamaras.text = "No hay ubicación guardada"
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "Error al cargar datos: ${error.message}", Toast.LENGTH_LONG).show()
+                tvCurrentLocationCamaras.text = "Error al cargar ubicación"
             }
         })
+    }
+
+    /**
+     * Simula la carga del estado de las cámaras, habilita el botón "Ver" de las cámaras
+     * y configura la navegación correcta, enviando el argumento para el selector de cámara.
+     */
+    private fun setupCameraStatus() {
+        // --- Cámara Pasillo (Cámara Trasera) ---
+        tvStatusPasillo.text = "Estado: Online"
+        tvStatusPasillo.setTextColor(Color.GREEN) // Color verde para Online
+        btnVerCamaraPasillo.isEnabled = true
+
+        // 1. Navegación para CÁMARA TRASERA
+        btnVerCamaraPasillo.setOnClickListener {
+            // Usamos Safe Args: cameraName = "Pasillo", streamUrl = "simulated_back_camera"
+            val action = CamarasDirections.actionCamarasToReproductorCamara(
+                cameraName = "Pasillo",
+                streamUrl = "simulated_back_camera" // Indica a ReproductorCamara que use la cámara trasera
+            )
+            findNavController().navigate(action)
+        }
+
+        // --- Cámara Vista superior (Cámara Frontal) ---
+        // **CORRECCIÓN:** Se fuerza a Online y se habilita el botón
+        tvStatusSuperior.text = "Estado: Online"
+        tvStatusSuperior.setTextColor(Color.GREEN) // Color verde para Online
+        btnVerCamaraSuperior.isEnabled = true // HABILITADO
+
+        // 2. Navegación para CÁMARA FRONTAL
+        btnVerCamaraSuperior.setOnClickListener {
+            // Usamos Safe Args: cameraName = "Vista Superior", streamUrl = "simulated_front_camera"
+            val action = CamarasDirections.actionCamarasToReproductorCamara(
+                cameraName = "Vista Superior",
+                streamUrl = "simulated_front_camera" // Indica a ReproductorCamara que use la cámara frontal
+            )
+            findNavController().navigate(action)
+        }
     }
 }

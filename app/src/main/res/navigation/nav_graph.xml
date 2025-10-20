@@ -20,6 +20,29 @@
             android:id="@+id/action_planoInterno_to_save_location"
             app:destination="@id/save_location" />
 
+        <!-- Argumentos para el NUEVO sistema (piso y espacio) -->
+        <argument
+            android:name="floor"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="spot"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+        <!-- Argumentos para el sistema ANTIGUO (coordenadas) como fallback -->
+        <argument
+            android:name="normalizedX"
+            app:argType="float"
+            android:defaultValue="-1.0" />
+        <argument
+            android:name="normalizedY"
+            app:argType="float"
+            android:defaultValue="-1.0" />
+        <action
+            android:id="@+id/action_planoInterno_to_settings"
+            app:destination="@id/settings" />
     </fragment>
     <fragment
         android:id="@+id/bienvenida"
@@ -141,9 +164,6 @@
         android:label="fragment_see_car"
         tools:layout="@layout/fragment_see_car" >
         <action
-            android:id="@+id/action_see_car_to_googleMaps"
-            app:destination="@id/googleMaps" />
-        <action
             android:id="@+id/action_see_car_to_planoInterno"
             app:destination="@id/planoInterno" />
         <action
@@ -153,47 +173,6 @@
             android:id="@+id/action_see_car_to_camaras"
             app:destination="@id/camaras" />
     </fragment>
-
-    <!-- ### SECCIÓN CORREGIDA ### -->
-    <fragment
-        android:id="@+id/planoInterno"
-        android:name="com.example.parkview.PlanoInterno"
-        android:label="fragment_plano_interno"
-        tools:layout="@layout/fragment_plano_interno" >
-
-        <!-- Argumentos para el NUEVO sistema (piso y espacio) -->
-        <argument
-            android:name="floor"
-            app:argType="integer"
-            android:defaultValue="-1" />
-        <argument
-            android:name="spot"
-            app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
-
-        <!-- Argumentos para el sistema ANTIGUO (coordenadas) como fallback -->
-        <argument
-            android:name="normalizedX"
-            app:argType="float"
-            android:defaultValue="-1.0" />
-        <argument
-            android:name="normalizedY"
-            app:argType="float"
-            android:defaultValue="-1.0" />
-
-        <!-- Las acciones se quedan igual -->
-        <action
-            android:id="@+id/action_planoInterno_to_save_location"
-            app:destination="@id/save_location" />
-        <action
-            android:id="@+id/action_planoInterno_to_camaras"
-            app:destination="@id/camaras" />
-        <action
-            android:id="@+id/action_planoInterno_to_settings"
-            app:destination="@id/settings" />
-    </fragment>
-    <!-- ### FIN DE LA SECCIÓN CORREGIDA ### -->
 
     <fragment
         android:id="@+id/camaras"
@@ -208,6 +187,7 @@
             app:destination="@id/reproductorCamara" />
     </fragment>
 
+    <!-- DESTINO: ReproductorCamara -->
     <fragment
         android:id="@+id/reproductorCamara"
         android:name="com.example.parkview.ReproductorCamara"
@@ -222,13 +202,27 @@
         <action
             android:id="@+id/action_reproductorCamara_to_settings"
             app:destination="@id/settings" />
+
+        <!-- ACCIÓN CORREGIDA: Navegación a Fullscreen/Horizontal (no lleva argumentos aquí) -->
+        <action
+            android:id="@+id/action_reproductorCamara_to_reproductorHorizontal"
+            app:destination="@id/reproductorHorizontal" />
     </fragment>
 
+    <!-- DESTINO CORREGIDO: ReproductorHorizontal (Ahora define el argumento que necesita) -->
     <fragment
-        android:id="@+id/googleMaps"
-        android:name="com.example.parkview.GoogleMaps"
-        android:label="fragment_google_maps"
-        tools:layout="@layout/fragment_google_maps" />
+        android:id="@+id/reproductorHorizontal"
+        android:name="com.example.parkview.ReproductorHorizontal"
+        android:label="Reproductor Horizontal"
+        tools:layout="@layout/fragment_reproductor_horizontal"
+        tools:ignore="ExtraText">
+
+        <!-- Argumento para recibir el selector de la cámara activa -->
+        <argument
+            android:name="cameraSelectorKey"
+            app:argType="string" />
+    </fragment>
+
 
     <fragment
         android:id="@+id/settings"
@@ -255,3 +249,4 @@
         android:label="fragment_edit_profile"
         tools:layout="@layout/fragment_edit_profile" />
 </navigation>
+

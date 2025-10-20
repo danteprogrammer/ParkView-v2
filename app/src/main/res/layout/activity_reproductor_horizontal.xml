@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@android:color/black"
+    tools:context=".ReproductorHorizontal">
+
+    <!-- 1. VISTA DE CÁMARA (PreviewView) -->
+    <!-- layout_weight="8" asegura que este elemento ocupe el 80% del ancho. -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cameraPreviewHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="8"
+        app:scaleType="fillCenter" />
+
+    <!-- 2. CONTROLES LATERALES -->
+    <!-- layout_weight="2" asegura que este elemento ocupe el 20% del ancho restante. -->
+    <LinearLayout
+        android:id="@+id/controls_horizontal_layout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:background="#222222"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:gravity="top|center_horizontal">
+
+        <!-- Botón de Regresar/Salir de Fullscreen -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginVertical="12dp"
+            android:background="@drawable/button_selector"
+            android:text="←"
+            android:textSize="24sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:padding="0dp"
+            android:textAllCaps="false"
+            android:tooltipText="Volver a vista vertical"
+            />
+
+        <!-- Separador visual -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#444444"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Botón Play -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_play_horizontal"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/button_selector"
+            android:text="▶"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:padding="0dp"
+            android:textAllCaps="false"
+            android:tooltipText="Reproducir"
+            />
+
+        <!-- Botón Pause -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_pause_horizontal"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/button_selector"
+            android:text="⏸"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:padding="0dp"
+            android:textAllCaps="false"
+            android:tooltipText="Pausar"
+            />
+
+        <!-- Botón Mute -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_mute_horizontal"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/button_selector"
+            android:text="🔇"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:padding="0dp"
+            android:textAllCaps="false"
+            android:tooltipText="Silenciar"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

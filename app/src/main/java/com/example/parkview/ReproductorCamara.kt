@@ -1,14 +1,13 @@
 package com.example.parkview
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
@@ -20,9 +19,15 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import androidx.activity.OnBackPressedCallback // <-- IMPORTACIÓN NECESARIA
+import androidx.activity.OnBackPressedCallback
+import android.widget.LinearLayout
+import androidx.navigation.fragment.navArgs // No se usa aquí, pero se mantuvo en la versión anterior.
 
 class ReproductorCamara : Fragment() {
+
+    // Constantes para los nombres de las cámaras
+    private val CAMARA_PASILLO = "Cámara - Pasillo"
+    private val CAMARA_SUPERIOR = "Cámara - Superior"
 
     // Variables y constantes para la cámara
     private val REQUEST_CODE_PERMISSIONS = 10
@@ -31,16 +36,27 @@ class ReproductorCamara : Fragment() {
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var previewView: PreviewView
 
+    // VARIABLES DE CLASE
+    private lateinit var tvReproductorTitle: TextView
+    private lateinit var btnCambiarCamara: AppCompatButton
+    private lateinit var controlsLayout: View
+    private lateinit var reproductorCard: LinearLayout
+
     // Estado del reproductor
     private var isMuted = false
-    private var isFullscreen = false
-    private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-    // Caso de uso para simular audio/captura de datos (necesario para el Mute)
+    // Usaremos un valor simple para rastrear el estado actual de la cámara
+    private var isBackCameraSelected: Boolean = true
+    private var currentCameraName: String = CAMARA_PASILLO
     private var imageCapture: ImageCapture? = null
-
-    // Variable para guardar la referencia del caso de uso Preview (necesario para Pause)
     private var previewUseCase: Preview? = null
+
+    private fun Int.dpToPx(context: Context): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            this.toFloat(),
+            context.resources.displayMetrics
+        ).toInt()
+    }
 
     // ----------------------------------------------------------------
     // CICLO DE VIDA
@@ -57,29 +73,25 @@ class ReproductorCamara : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Manejo del Botón Atrás
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (isFullscreen) {
-                    // Si estamos en Fullscreen, salimos del modo Fullscreen
-                    view.let { toggleFullscreen(it) }
-                } else {
-                    // Si NO estamos en Fullscreen, volvemos a la pantalla anterior
-                    findNavController().popBackStack()
-                }
+                findNavController().popBackStack()
             }
         }
-        // Usamos viewLifecycleOwner para enlazar el callback
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
+        // ----------------------------------------------------------------
+        // INICIALIZACIÓN DE VIEWS Y REFERENCIAS
+        // ----------------------------------------------------------------
         previewView = view.findViewById(R.id.cameraPreview)
+        tvReproductorTitle = view.findViewById(R.id.tv_reproductor_title)
+        btnCambiarCamara = view.findViewById(R.id.btn_cambiar_camara)
+        controlsLayout = view.findViewById(R.id.controls_layout)
+        reproductorCard = view.findViewById(R.id.reproductor_card)
 
-        // Recibimos los datos de la cámara seleccionada
-        val cameraName = arguments?.getString("cameraName")
-        val tvCameraName = view.findViewById<TextView>(R.id.tv_reproductor_title)
-        tvCameraName.text = cameraName ?: "Cámara - Pasillo"
+        tvReproductorTitle.text = currentCameraName
 
-        // Manejo de Permisos: Comprueba y solicita al inicio
+        // Manejo de Permisos
         if (allPermissionsGranted()) {
             startCamera()
         } else {
@@ -87,52 +99,57 @@ class ReproductorCamara : Fragment() {
         }
 
         // --- Lógica de botones ---
-
-        val btnPlay = view.findViewById<AppCompatButton>(R.id.btn_play)
-        btnPlay.setOnClickListener {
-            // Reanudar el Preview y el Audio
-            previewUseCase?.let {
-                cameraProvider?.bindToLifecycle(viewLifecycleOwner, cameraSelector, it)
-            }
-            imageCapture?.let {
-                cameraProvider?.bindToLifecycle(viewLifecycleOwner, cameraSelector, it)
-            }
+        view.findViewById<AppCompatButton>(R.id.btn_play).setOnClickListener {
+            // Usamos el selector de cámara actual
+            val selector = if (isBackCameraSelected) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+            previewUseCase?.let { cameraProvider?.bindToLifecycle(viewLifecycleOwner, selector, it) }
+            imageCapture?.let { cameraProvider?.bindToLifecycle(viewLifecycleOwner, selector, it) }
             Toast.makeText(context, "Reproducción reanudada", Toast.LENGTH_SHORT).show()
         }
 
-        val btnPause = view.findViewById<AppCompatButton>(R.id.btn_pause)
-        btnPause.setOnClickListener {
-            // Desenlazar la referencia guardada (previewUseCase) para congelar el feed
-            previewUseCase?.let {
-                cameraProvider?.unbind(it)
-            }
+        view.findViewById<AppCompatButton>(R.id.btn_pause).setOnClickListener {
+            previewUseCase?.let { cameraProvider?.unbind(it) }
             Toast.makeText(context, "Video pausado", Toast.LENGTH_SHORT).show()
         }
 
-        val btnMute = view.findViewById<AppCompatButton>(R.id.btn_mute)
-        btnMute.setOnClickListener {
+        view.findViewById<AppCompatButton>(R.id.btn_mute).setOnClickListener {
             toggleAudio()
         }
 
-        val btnFullscreen = view.findViewById<AppCompatButton>(R.id.btn_fullscreen)
-        btnFullscreen.setOnClickListener {
-            toggleFullscreen(view)
-        }
+        // *** CÓDIGO CORREGIDO: NAVEGACIÓN A PANTALLA HORIZONTAL CON SAFE ARGS ***
+        view.findViewById<AppCompatButton>(R.id.btn_fullscreen).setOnClickListener {
+            // 1. Detenemos la cámara antes de navegar para liberar recursos
+            cameraProvider?.unbindAll()
 
-        val btnCambiarCamara = view.findViewById<AppCompatButton>(R.id.btn_cambiar_camara)
-        btnCambiarCamara.setOnClickListener {
-            // Cambiar Cámara: Alterna y reinicia el feed
-            cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                CameraSelector.DEFAULT_FRONT_CAMERA
-            } else {
-                CameraSelector.DEFAULT_BACK_CAMERA
+            // 2. Usamos la variable de estado para definir el argumento
+            val cameraSelectorIdentifier = if (isBackCameraSelected) "BACK" else "FRONT"
+
+            val action = ReproductorCamaraDirections.actionReproductorCamaraToReproductorHorizontal(
+                cameraSelectorKey = cameraSelectorIdentifier
+            )
+
+            // 3. Navegamos al nuevo fragmento
+            try {
+                findNavController().navigate(action)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error de navegación a Fullscreen: ${e.message}", Toast.LENGTH_LONG).show()
             }
-            startCamera()
         }
+        // *************************************************
 
-        val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)
-        settingsIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_reproductorCamara_to_settings)
+        // Lógica de Cambiar Cámara
+        btnCambiarCamara.setOnClickListener {
+            // Invertimos el estado
+            isBackCameraSelected = !isBackCameraSelected
+
+            if (isBackCameraSelected) {
+                currentCameraName = CAMARA_PASILLO
+            } else {
+                currentCameraName = CAMARA_SUPERIOR
+            }
+            tvReproductorTitle.text = currentCameraName
+            startCamera() // Reinicia la cámara con la nueva selección
+            Toast.makeText(context, "Cambiando a $currentCameraName", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -142,174 +159,43 @@ class ReproductorCamara : Fragment() {
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-
         cameraProviderFuture.addListener({
             cameraProvider = cameraProviderFuture.get()
-
-            // Configura la vista previa
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-            // Guarda la referencia del Preview en la variable de clase (para Pause)
+            val preview = Preview.Builder().build().also { it.setSurfaceProvider(previewView.surfaceProvider) }
             previewUseCase = preview
+            // El selector de cámara se determina por el estado booleano
+            val currentSelector = if (isBackCameraSelected) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
-            // Inicializa ImageCapture (simula el canal de datos/audio)
-            imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
-
+            imageCapture = ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build()
             try {
                 cameraProvider?.unbindAll()
-
-                // Enlaza la vista previa y el caso de uso de ImageCapture
                 cameraProvider?.bindToLifecycle(
-                    viewLifecycleOwner, cameraSelector, preview, imageCapture
+                    viewLifecycleOwner, currentSelector, preview, imageCapture!! // Usamos !! porque ya verificamos que no sea nulo antes
                 )
-
-                // Si el estado es Mute, desactiva el audio inmediatamente después de enlazar
-                if (isMuted) toggleAudio(true)
-
+                if (isMuted) toggleAudio(forceMute = true)
             } catch(exc: Exception) {
                 Toast.makeText(requireContext(), "Error al iniciar la cámara: ${exc.message}", Toast.LENGTH_LONG).show()
             }
-
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
-    // ----------------------------------------------------------------
-    // LÓGICA DE BOTONES AUXILIARES
-    // ----------------------------------------------------------------
-
-    /**
-     * Alterna la captura de audio/datos (simulando Mute).
-     */
     private fun toggleAudio(forceMute: Boolean = false) {
         val newState = if (forceMute) true else !isMuted
+        val capture = imageCapture ?: return // Salir si imageCapture es nulo
+
+        // Usamos el selector de cámara actual para el re-binding
+        val currentSelector = if (isBackCameraSelected) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
         if (newState) {
-            // MUTE: desenlaza ImageCapture (simula detener el canal de audio/datos)
-            cameraProvider?.unbind(imageCapture!!)
+            // Desvincular imageCapture para simular silencio (sin audio)
+            cameraProvider?.unbind(capture)
             isMuted = true
-            Toast.makeText(context, "Audio silenciado", Toast.LENGTH_SHORT).show()
+            if (!forceMute) Toast.makeText(context, "Audio silenciado", Toast.LENGTH_SHORT).show()
         } else {
-            // UNMUTE: vuelve a enlazar ImageCapture para restaurar el canal
-            cameraProvider?.bindToLifecycle(viewLifecycleOwner, cameraSelector, imageCapture)
+            // Volver a vincular imageCapture para simular audio activado
+            cameraProvider?.bindToLifecycle(viewLifecycleOwner, currentSelector, capture)
             isMuted = false
             Toast.makeText(context, "Audio activado", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /**
-     * Alterna la vista de pantalla completa (soporte para API antigua y moderna).
-     * 💡 CORREGIDO: Se eliminó la manipulación incorrecta del headerLayout al salir de Fullscreen.
-     */
-    private fun toggleFullscreen(view: View) {
-        val headerLayout = view.findViewById<View>(R.id.header_layout_reproductor)
-        val reproductorCard = view.findViewById<View>(R.id.reproductor_card)
-        val tvTitle = view.findViewById<TextView>(R.id.tv_reproductor_title)
-        val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)
-        val window = activity?.window
-
-        if (window == null) return // Evitar crashes
-
-        if (!isFullscreen) {
-            // ENTRAR EN FULLSCREEN INMERSIVO
-
-            // 1. Ocultar barras del sistema:
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // API 30+ (Moderno): Ocultar StatusBar y NavigationBar
-                window.insetsController?.hide(WindowInsets.Type.systemBars())
-            } else {
-                // API 29- (Clásico): Ocultar StatusBar y NavigationBar
-                @Suppress("DEPRECATION")
-                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        or View.SYSTEM_UI_FLAG_FULLSCREEN
-                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-            }
-
-            // 2. Ocultar Controles de la App
-            headerLayout.visibility = View.GONE
-            tvTitle.visibility = View.GONE
-            settingsIcon.visibility = View.GONE
-
-            // 3. Expandir la tarjeta de reproducción
-            val cardParams = reproductorCard.layoutParams as ViewGroup.MarginLayoutParams
-            cardParams.topMargin = 0 // Elimina el margen negativo
-            cardParams.bottomMargin = 0 // Elimina el margen inferior
-            reproductorCard.layoutParams = cardParams
-
-            Toast.makeText(context, "Pantalla completa activada", Toast.LENGTH_SHORT).show()
-
-        } else {
-            // SALIR DE FULLSCREEN (LÓGICA CORREGIDA)
-
-            // 1. Mostrar barras del sistema:
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // API 30+ (Moderno): Mostrar StatusBar y NavigationBar
-                window.insetsController?.show(WindowInsets.Type.systemBars())
-            } else {
-                // API 29- (Clásico): Mostrar StatusBar y NavigationBar
-                @Suppress("DEPRECATION")
-                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            }
-
-            // 2. Mostrar Controles de la App
-            headerLayout.visibility = View.VISIBLE
-            tvTitle.visibility = View.VISIBLE
-            settingsIcon.visibility = View.VISIBLE
-
-            // 3. Restaurar diseño original (SOLO MÁRGENES DE LA TARJETA)
-            // *** Bloque que causaba el error ELIMINADO ***
-
-            val cardParams = reproductorCard.layoutParams as ViewGroup.MarginLayoutParams
-            cardParams.topMargin = resources.getDimensionPixelSize(R.dimen.negative_margin_80dp)
-            cardParams.bottomMargin = resources.getDimensionPixelSize(R.dimen.margin_32dp)
-            reproductorCard.layoutParams = cardParams
-
-            Toast.makeText(context, "Pantalla normal", Toast.LENGTH_SHORT).show()
-        }
-
-        isFullscreen = !isFullscreen
-        reproductorCard.requestLayout()
-    }
-
-    // ----------------------------------------------------------------
-    // LÓGICA DE PERMISOS Y CICLO DE VIDA (Mantiene el modo inmersivo al regresar a la App)
-    // ----------------------------------------------------------------
-
-    override fun onResume() {
-        super.onResume()
-        if (isFullscreen) {
-            val window = activity?.window
-            if (window != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    window.insetsController?.hide(WindowInsets.Type.systemBars())
-                } else {
-                    @Suppress("DEPRECATION")
-                    window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                            or View.SYSTEM_UI_FLAG_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-                }
-            }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        // Cuando el Fragmento se pausa, restauramos el comportamiento normal del sistema UI si estamos en Fullscreen.
-        if (isFullscreen) {
-            val window = activity?.window
-            if (window != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    window.insetsController?.show(WindowInsets.Type.systemBars())
-                } else {
-                    @Suppress("DEPRECATION")
-                    window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-                }
-            }
         }
     }
 

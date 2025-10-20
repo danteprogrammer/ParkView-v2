@@ -114,15 +114,16 @@
             android:textColor="@color/button_text_selector"
             android:textSize="16sp" />
 
-        <ImageView
-            android:id="@+id/btn_google_maps"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_navegar_maps"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/navegar_google_maps"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="Navegar con Google Maps"/>
+            android:layout_height="60dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/button_selector"
+            android:text="Navegar con Google Maps"
+            android:textAllCaps="false"
+            android:textColor="@color/button_text_selector"
+            android:textSize="16sp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_regresar_see_car"

@@ -1,5 +1,7 @@
 package com.example.parkview
 
+import android.content.Intent // <-- IMPORTACIÓN AÑADIDA
+import android.net.Uri // <-- IMPORTACIÓN AÑADIDA
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -36,9 +38,10 @@ class see_car : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        // --- Referencias a los botones con los IDs CORRECTOS ---
+        // --- Referencias a los botones ---
         val btnVerPlano = view.findViewById<AppCompatButton>(R.id.btn_ver_plano)
-        val btnGoogleMaps = view.findViewById<ImageView>(R.id.btn_google_maps)
+        // El ImageView fue reemplazado por un Button:
+        val btnNavegarMaps = view.findViewById<AppCompatButton>(R.id.btn_navegar_maps)
         val btnRegresar = view.findViewById<AppCompatButton>(R.id.btn_regresar_see_car)
 
         loadCarLocation(view) // Carga los datos de la ubicación
@@ -75,8 +78,27 @@ class see_car : Fragment() {
             }
         }
 
-        btnGoogleMaps.setOnClickListener {
-            findNavController().navigate(R.id.action_see_car_to_googleMaps)
+        // --- ¡AQUÍ ESTÁ LA NUEVA LÓGICA! ---
+        btnNavegarMaps.setOnClickListener {
+            // Coordenadas de ejemplo: Estacionamiento Los Portales, Parque Kennedy, Miraflores
+            val latitud = "-12.121852"
+            val longitud = "-77.030367"
+            val etiqueta = "Estacionamiento Los Portales (Parque Kennedy)"
+
+            // Creamos el URI para el Intent de Geo-localización
+            // El 'q=' define el marcador y la etiqueta
+            val gmmIntentUri = Uri.parse("geo:$latitud,$longitud?q=$latitud,$longitud($etiqueta)")
+
+            // Creamos el Intent para ver el mapa
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+
+            // Verificamos si hay alguna app que pueda manejar este Intent (como Google Maps)
+            if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {
+                startActivity(mapIntent)
+            } else {
+                // Mensaje de error por si el usuario no tiene ninguna app de mapas
+                Toast.makeText(context, "No se encontró una aplicación de mapas.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         btnRegresar.setOnClickListener {
