@@ -32,9 +32,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBMEsg4VvuPQXbkAN8RQlpiDhnH5cvl_eQ" />
         <activity
-            android:name=".ReproductorHorizontal"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

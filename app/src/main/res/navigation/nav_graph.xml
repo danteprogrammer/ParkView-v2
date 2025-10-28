@@ -20,7 +20,6 @@
             android:id="@+id/action_planoInterno_to_save_location"
             app:destination="@id/save_location" />
 
-        <!-- Argumentos para el NUEVO sistema (piso y espacio) -->
         <argument
             android:name="floor"
             app:argType="integer"
@@ -31,7 +30,6 @@
             app:nullable="true"
             android:defaultValue="@null" />
 
-        <!-- Argumentos para el sistema ANTIGUO (coordenadas) como fallback -->
         <argument
             android:name="normalizedX"
             app:argType="float"
@@ -193,7 +191,6 @@
             app:destination="@id/reproductorCamara" />
     </fragment>
 
-    <!-- DESTINO: ReproductorCamara -->
     <fragment
         android:id="@+id/reproductorCamara"
         android:name="com.example.parkview.ReproductorCamara"
@@ -209,21 +206,18 @@
             android:id="@+id/action_reproductorCamara_to_settings"
             app:destination="@id/settings" />
 
-        <!-- ACCIÓN CORREGIDA: Navegación a Fullscreen/Horizontal (no lleva argumentos aquí) -->
         <action
             android:id="@+id/action_reproductorCamara_to_reproductorHorizontal"
             app:destination="@id/reproductorHorizontal" />
     </fragment>
 
-    <!-- DESTINO CORREGIDO: ReproductorHorizontal (Ahora define el argumento que necesita) -->
     <fragment
         android:id="@+id/reproductorHorizontal"
         android:name="com.example.parkview.ReproductorHorizontal"
         android:label="Reproductor Horizontal"
-        tools:layout="@layout/fragment_reproductor_horizontal"
+        tools:layout="@layout/activity_reproductor_horizontal"
         tools:ignore="ExtraText">
 
-        <!-- Argumento para recibir el selector de la cámara activa -->
         <argument
             android:name="cameraSelectorKey"
             app:argType="string" />

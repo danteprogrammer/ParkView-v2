@@ -2,18 +2,16 @@ package com.example.parkview
 
 import android.app.AlertDialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.database.FirebaseDatabase
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class settings : Fragment() {
 
