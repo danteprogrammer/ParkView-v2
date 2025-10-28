@@ -28,6 +28,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ParkView">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBMEsg4VvuPQXbkAN8RQlpiDhnH5cvl_eQ" />
         <activity
             android:name=".ReproductorHorizontal"
             android:exported="false" />

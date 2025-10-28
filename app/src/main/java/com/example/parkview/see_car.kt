@@ -1,7 +1,5 @@
 package com.example.parkview
 
-import android.content.Intent // <-- IMPORTACIÓN AÑADIDA
-import android.net.Uri // <-- IMPORTACIÓN AÑADIDA
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -90,28 +88,7 @@ class see_car : Fragment() {
         }
 
         btnNavegarMaps.setOnClickListener {
-
-            val latitud = "-12.121852"
-            val longitud = "-77.030367"
-            val etiqueta = "Estacionamiento Los Portales (Parque Kennedy)"
-
-
-            val gmmIntentUri = Uri.parse("geo:$latitud,$longitud?q=$latitud,$longitud($etiqueta)")
-
-
-            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-
-
-            if (mapIntent.resolveActivity(requireActivity().packageManager) != null) {
-                startActivity(mapIntent)
-            } else {
-
-                Toast.makeText(
-                    context,
-                    "No se encontró una aplicación de mapas.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            findNavController().navigate(R.id.action_see_car_to_googleMapsFragment)
         }
 
         val settingsIcon = view.findViewById<ImageView>(R.id.settings_icon)

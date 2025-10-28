@@ -167,6 +167,9 @@
             android:id="@+id/action_see_car_to_planoInterno"
             app:destination="@id/planoInterno" />
         <action
+            android:id="@+id/action_see_car_to_googleMapsFragment"
+            app:destination="@id/googleMapsFragment" />
+        <action
             android:id="@+id/action_see_car_to_save_location"
             app:destination="@id/save_location" />
         <action
@@ -241,6 +244,13 @@
             android:id="@+id/action_settings_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/googleMapsFragment"
+        android:name="com.example.parkview.GoogleMaps"
+        android:label="Google Maps"
+        tools:layout="@layout/fragment_google_maps" />
+
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.example.parkview.ForgotPasswordFragment"
