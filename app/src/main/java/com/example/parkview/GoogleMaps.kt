@@ -104,7 +104,7 @@ class GoogleMaps : Fragment(), OnMapReadyCallback {
             )
         )
         googleMap?.uiSettings?.isZoomControlsEnabled = true
-
+        checkLocationPermission()
     }
 
     private fun checkLocationPermission() {
